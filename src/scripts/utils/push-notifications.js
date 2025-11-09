@@ -21,23 +21,38 @@ function urlBase64ToUint8Array(base64String) {
 export async function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return null;
   try {
+    let isModule = false;
     try {
       const resp = await fetch("./sw.js", { cache: "no-store" });
-      if (!resp.ok) return null;
-      const txt = await resp.clone().text();
-      if (/^\s*(import|export)\s+/m.test(txt)) {
-        console.warn(
-          "Not registering service worker: sw.js appears to contain ES module syntax."
-        );
-        return null;
+      if (resp && resp.ok) {
+        const txt = await resp.clone().text();
+        if (/^\s*(import|export)\s+/m.test(txt)) {
+          isModule = true;
+        }
       }
     } catch (e) {
       console.warn("Could not fetch sw.js before registration", e);
-      return null;
     }
 
-    const reg = await navigator.serviceWorker.register("./sw.js");
-    return reg;
+    try {
+      const reg = await navigator.serviceWorker.register(
+        "./sw.js",
+        isModule ? { type: "module" } : undefined
+      );
+      return reg;
+    } catch (err) {
+      if (isModule) {
+        try {
+          const reg = await navigator.serviceWorker.register("./sw.js");
+          return reg;
+        } catch (e) {
+          console.error("SW register failed (module then classic)", e);
+          return null;
+        }
+      }
+      console.error("SW register failed", err);
+      return null;
+    }
   } catch (err) {
     console.error("SW register failed", err);
     return null;

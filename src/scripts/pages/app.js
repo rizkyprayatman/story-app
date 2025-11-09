@@ -40,6 +40,14 @@ class App {
     const url = getActiveRoute();
     const page = routes[url];
 
+    try {
+      if (this._currentPage && typeof this._currentPage.beforeUnmount === 'function') {
+        await this._currentPage.beforeUnmount();
+      }
+    } catch (e) {
+      console.error('beforeUnmount error', e);
+    }
+
     if (typeof document !== "undefined" && document.startViewTransition) {
       try {
         await document.startViewTransition(async () => {
@@ -68,6 +76,12 @@ class App {
     this.#content.classList.remove("page-transition-in");
 
     await page.afterRender();
+
+    try {
+      this._currentPage = page;
+    } catch (e) {
+      console.error('Error setting current page', e);
+    }
   }
 }
 

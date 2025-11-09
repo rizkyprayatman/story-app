@@ -54,6 +54,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     drawerButton: document.querySelector("#drawer-button"),
     navigationDrawer: document.querySelector("#navigation-drawer"),
   });
+
+  try {
+    const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+    const isiOSStandalone = window.navigator && window.navigator.standalone;
+    if (isStandalone || isiOSStandalone) {
+      const installWrapper = document.getElementById('auth-actions');
+      if (installWrapper) {
+        const existing = document.getElementById('install-btn');
+        if (existing) existing.remove();
+        const btn = document.createElement('button');
+        btn.id = 'install-btn';
+        btn.className = 'auth-btn';
+        btn.textContent = 'Uninstall App';
+        btn.addEventListener('click', async () => {
+          await window.Swal.fire({
+            title: 'Uninstall App',
+            text: 'To uninstall, remove the app from your system or browser app list. On desktop you can open chrome://apps, right-click and uninstall. On mobile, uninstall like any app.',
+            icon: 'info',
+          });
+        });
+        installWrapper.prepend(btn);
+      }
+    }
+  } catch (e) {
+    console.error('standalone check error', e);
+  }
   await app.renderPage();
   try {
     feather.replace();
@@ -66,7 +92,42 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Error replacing feather icons", e);
   }
 
+  try {
+    const skip = document.querySelector('.skip-link');
+    const main = document.getElementById('main-content');
+    if (skip && main) {
+      skip.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        try {
+          main.setAttribute('tabindex', '-1');
+          main.focus({ preventScroll: true });
+        } catch (e) {
+          main.focus();
+        }
+      });
+    }
+  } catch (e) {
+    console.error('skip-link handler error', e);
+  }
+
   const authActions = document.getElementById("auth-actions");
+
+  try {
+    const sync = await import('./utils/sync-outbox');
+    window.addEventListener('online', async () => {
+      try {
+        const r = await sync.syncOutbox();
+        if (r && r.synced && r.synced > 0 && window.Swal) {
+          window.Swal.fire('Synced', `${r.synced} queued items synced.`, 'success');
+        }
+      } catch (e) {
+        console.error('online sync error', e);
+      }
+    });
+  } catch (e) {
+    console.warn('sync-outbox not available', e);
+  }
+
   function renderAuth() {
     if (!authActions) return;
     const token = window.localStorage.getItem("token");
@@ -167,13 +228,44 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("./sw.js").catch(() => {});
+        await pushNotifications.registerServiceWorker().catch(() => {});
       }
     } catch (e) {
       console.error("Error registering service worker", e);
     }
 
   let deferredPrompt = null;
+  async function showInstallPromptViaSwal() {
+    try {
+      if (!deferredPrompt) {
+        // nothing to show
+        if (window.Swal) await window.Swal.fire('Install', 'Install prompt is not available on this device or already shown.', 'info');
+        return;
+      }
+      const { isConfirmed } = await window.Swal.fire({
+        title: 'Install App',
+        text: 'Install this app to your device for a native-like experience?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Install',
+        cancelButtonText: 'Cancel',
+      });
+      if (!isConfirmed) return;
+      await deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if (choice && choice.outcome === 'accepted') {
+        await window.Swal.fire('Installed', 'The app was installed.', 'success');
+      } else {
+        await window.Swal.fire('Cancelled', 'Installation was cancelled.', 'info');
+      }
+      deferredPrompt = null;
+      const btn = document.getElementById('install-btn');
+      if (btn) btn.remove();
+    } catch (err) {
+      console.error('Error handling install prompt', err);
+      try { window.Swal.fire('Error', 'Failed to show install prompt.', 'error'); } catch (e) {}
+    }
+  }
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -185,18 +277,42 @@ document.addEventListener("DOMContentLoaded", async () => {
         btn.id = "install-btn";
         btn.className = "auth-btn";
         btn.textContent = "Install App";
-        btn.addEventListener("click", async () => {
-          try {
-            deferredPrompt.prompt();
-            const choice = await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            btn.remove();
-          } catch (err) {
-            console.error("Error handling beforeinstallprompt event", err);
-          }
-        });
+        btn.addEventListener("click", showInstallPromptViaSwal);
         installWrapper.prepend(btn);
       }
+    }
+  });
+
+  document.addEventListener('click', (ev) => {
+    try {
+      const el = ev.target && ev.target.closest && ev.target.closest('.install-trigger');
+      if (el) {
+        ev.preventDefault();
+        showInstallPromptViaSwal();
+      }
+    } catch (e) {}
+  });
+
+  window.addEventListener('appinstalled', (e) => {
+    try {
+      const installWrapper = document.getElementById('auth-actions');
+      if (!installWrapper) return;
+      const existing = document.getElementById('install-btn');
+      if (existing) existing.remove();
+      const btn = document.createElement('button');
+      btn.id = 'install-btn';
+      btn.className = 'auth-btn';
+      btn.textContent = 'Uninstall App';
+      btn.addEventListener('click', async () => {
+        await window.Swal.fire({
+          title: 'Uninstall App',
+          text: 'To uninstall, remove the app from your system or browser app list. On desktop you can open chrome://apps, right-click and uninstall. On mobile, uninstall like any app.',
+          icon: 'info',
+        });
+      });
+      installWrapper.prepend(btn);
+    } catch (e) {
+      console.error('appinstalled handler error', e);
     }
   });
 

@@ -2,7 +2,9 @@
   "name": "Story App",
   "short_name": "Stories",
   "lang": "en-US",
+  "description": "A simple Story App to read and post stories with offline support.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4f7f65",
@@ -36,5 +38,7 @@
       "sizes": "640x480",
       "type": "image/png"
     }
-  ]
+  ],
+  "orientation": "portrait-primary",
+  "categories": ["social", "productivity"]
 }

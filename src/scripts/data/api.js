@@ -201,22 +201,31 @@ export async function postStory(formData, token = null) {
     return response.json();
   } catch (err) {
     try {
-      if (typeof globalThis !== "undefined" && globalThis && globalThis.Swal) {
-        if (typeof navigator !== "undefined" && !navigator.onLine) {
-          globalThis.Swal.fire(
-            "Offline",
-            "Cannot post story while offline.",
-            "error"
-          );
-        } else {
-          globalThis.Swal.fire(
-            "Network error",
-            "Failed to post story to the server.",
-            "error"
-          );
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        try {
+          const idb = await import("../utils/indexeddb");
+          const obj = {};
+          formData.forEach((v, k) => {
+            if (v instanceof File) {
+              obj[k] = { name: v.name, type: v.type, size: v.size };
+            } else obj[k] = v;
+          });
+          obj.createdAt = Date.now();
+          await idb.addToOutbox(obj);
+          if (typeof globalThis !== "undefined" && globalThis.Swal)
+            globalThis.Swal.fire("Queued", "Story saved offline and will be synced when online.", "info");
+          return { queued: true, message: "Saved offline" };
+        } catch (e) {
+          console.error("Failed to queue post", e);
+        }
+      } else {
+        if (typeof globalThis !== "undefined" && globalThis && globalThis.Swal) {
+          globalThis.Swal.fire("Network error", "Failed to post story to the server.", "error");
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error("postStory error handler", e);
+    }
     return { error: true, message: err.message || "Network error" };
   }
 }

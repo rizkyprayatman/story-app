@@ -3,6 +3,7 @@ const DB_VERSION = 3;
 const STORE_BOOKMARKS = "favorites";
 const STORE_USER_BOOKMARKS = "favorites_by_user";
 const STORE_STORIES = "stories";
+const STORE_OUTBOX = "outbox";
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -25,6 +26,10 @@ function openDB() {
         const s = db.createObjectStore(STORE_STORIES, { keyPath: "id" });
         s.createIndex("by-createdAt", "createdAt");
       }
+        if (!db.objectStoreNames.contains(STORE_OUTBOX)) {
+          const o = db.createObjectStore(STORE_OUTBOX, { keyPath: "id", autoIncrement: true });
+          o.createIndex("by-createdAt", "createdAt");
+        }
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
@@ -154,6 +159,39 @@ export async function addOrUpdateStory(item) {
   });
 }
 
+export async function addToOutbox(item) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_OUTBOX, "readwrite");
+    const store = tx.objectStore(STORE_OUTBOX);
+    const req = store.add(item);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function getAllOutbox() {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_OUTBOX, "readonly");
+    const store = tx.objectStore(STORE_OUTBOX);
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function removeOutbox(id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_OUTBOX, "readwrite");
+    const store = tx.objectStore(STORE_OUTBOX);
+    const req = store.delete(id);
+    req.onsuccess = () => resolve(true);
+    req.onerror = () => reject(req.error);
+  });
+}
+
 export async function getStoryFromDB(id) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -172,6 +210,17 @@ export async function getAllStoriesFromDB() {
     const store = tx.objectStore(STORE_STORIES);
     const req = store.getAll();
     req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function removeStoryFromDB(id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_STORIES, "readwrite");
+    const store = tx.objectStore(STORE_STORIES);
+    const req = store.delete(id);
+    req.onsuccess = () => resolve(true);
     req.onerror = () => reject(req.error);
   });
 }

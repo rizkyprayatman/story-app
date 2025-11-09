@@ -522,6 +522,24 @@ header {
   }
 }
 
+::view-transition-old(
+  .main-content
+) {
+  opacity: 0.9;
+  transform: translateY(6px) scale(0.995);
+}
+
+::view-transition-new(
+  .main-content
+) {
+  opacity: 0.0;
+  transform: translateY(10px) scale(1.01);
+}
+
+::view-transition {
+  transition: transform 340ms ease, opacity 340ms ease;
+}
+
 .home-map,
 .story-map {
   height: 360px;
@@ -529,25 +547,6 @@ header {
   margin: 16px 0;
 }
 
-.photo-preview img,
-.photo-preview video {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-.photo-preview {
-  min-height: 120px;
-  background: #f6f6f6;
-  padding: 8px;
-}
-
-.photo-controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin: 8px 0 16px 0;
-}
 
 .stories-list {
   display: grid;
@@ -689,13 +688,54 @@ button i {
   margin: 0 0 8px 0;
   color: #141e16;
 }
-/* Center important elements */
+
 .page-title {
   text-align: center;
 }
 .site-footer .container {
   text-align: center;
   padding-block: 12px;
+}
+/* Saved / Favorite controls and create form */
+.saved-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 12px 0 18px 0;
+  flex-wrap: wrap;
+}
+.saved-controls input[type="text"], .saved-controls input, .saved-controls select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  min-height: 38px;
+  font-size: 14px;
+}
+.saved-controls #saved-sync {
+  background: #4f7f65;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.saved-controls #saved-sync:hover { opacity: 0.95; }
+
+.saved-create {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  margin-bottom: 18px;
+}
+.saved-create h2 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  color: #141e16;
+}
+/* create-form removed; responsive adjustments for saved-controls retained */
+@media screen and (max-width: 900px) {
+  .saved-controls { gap: 8px; }
 }
 .detail-image img {
   display: block;
