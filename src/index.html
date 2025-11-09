@@ -12,17 +12,23 @@
       crossorigin=""
     />
     <meta name="theme-color" content="#4f7f65" />
-  <link rel="manifest" href="manifest.json" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-  <link rel="apple-touch-icon" href="images/logo.png" />
+    <link rel="apple-touch-icon" href="images/logo.png" />
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Skip to content</a>
     <header>
       <div class="main-header container">
-        <a class="brand-name" href="#/">STORY APP</a>
+        <a class="skip-link" href="#main-content">Skip to content</a>
+        <a class="brand-name" href="#/" aria-label="Story App Home"
+          >STORY APP</a
+        >
 
-        <nav id="navigation-drawer" class="navigation-drawer">
+        <nav
+          id="navigation-drawer"
+          class="navigation-drawer"
+          aria-label="Main navigation"
+        >
           <ul id="nav-list" class="nav-list">
             <li><a href="#/">Home</a></li>
             <li><a href="#/stories">Stories</a></li>
@@ -40,7 +46,13 @@
       </div>
     </header>
 
-    <main id="main-content" class="main-content"></main>
+    <main id="main-content" class="main-content" tabindex="-1"></main>
+
+    <footer class="site-footer" role="contentinfo">
+      <div class="container">
+        <small>&copy; Story App — Built with ❤️</small>
+      </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

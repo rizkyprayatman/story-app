@@ -57,6 +57,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   await app.renderPage();
   try {
     feather.replace();
+    try {
+      if (typeof globalThis !== "undefined") globalThis.feather = feather;
+    } catch (e) {
+      console.warn("Could not set globalThis.feather", e);
+    }
   } catch (e) {
     console.error("Error replacing feather icons", e);
   }

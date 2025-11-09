@@ -21,10 +21,6 @@ function urlBase64ToUint8Array(base64String) {
 export async function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return null;
   try {
-    // Attempt to fetch the SW script first. In dev the copied `sw.js` may
-    // contain top-level ES `import`/`export` which will throw when evaluated
-    // by the browser ("Cannot use import statement outside a module").
-    // We avoid registering such unbundled scripts.
     try {
       const resp = await fetch("./sw.js", { cache: "no-store" });
       if (!resp.ok) return null;
@@ -36,7 +32,6 @@ export async function registerServiceWorker() {
         return null;
       }
     } catch (e) {
-      // if fetch fails, bail out gracefully
       console.warn("Could not fetch sw.js before registration", e);
       return null;
     }
@@ -74,12 +69,10 @@ export async function subscribeUser() {
     applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
   });
 
-  // prepare payload for backend
   const json = sub.toJSON();
   const keys = json && json.keys ? json.keys : {};
   const payload = {
     endpoint: sub.endpoint,
-    // backend expects keys object containing p256dh and auth
     keys: {
       p256dh: keys.p256dh,
       auth: keys.auth,
@@ -107,7 +100,6 @@ export async function unsubscribeUser() {
 }
 
 export async function showLocalNotification(title, options = {}) {
-  // show using service worker registration if available
   if ("serviceWorker" in navigator) {
     const reg = await navigator.serviceWorker.getRegistration();
     if (reg && reg.showNotification) {
@@ -115,7 +107,6 @@ export async function showLocalNotification(title, options = {}) {
       return;
     }
   }
-  // fallback to Notification API
   if (Notification && Notification.permission === "granted") {
     new Notification(title, options);
   }

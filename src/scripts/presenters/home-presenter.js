@@ -143,6 +143,12 @@ export default class HomePresenter {
 
       listEl.appendChild(card);
     });
+
+    try {
+      if (typeof globalThis !== "undefined") globalThis.feather?.replace();
+    } catch (e) {
+      console.error("Feather icons replacement error", e);
+    }
   }
 
   _initMap(stories) {

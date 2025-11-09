@@ -675,6 +675,28 @@ button i {
   border-radius: 8px;
   margin-bottom: 16px;
 }
+.page-title {
+  font-size: 28px;
+  margin: 12px 0 8px 0;
+  color: #141e16;
+}
+.detail-header {
+  max-width: 900px;
+  margin: 0 auto 12px;
+}
+.story-title {
+  font-size: 22px;
+  margin: 0 0 8px 0;
+  color: #141e16;
+}
+/* Center important elements */
+.page-title {
+  text-align: center;
+}
+.site-footer .container {
+  text-align: center;
+  padding-block: 12px;
+}
 .detail-image img {
   display: block;
   width: 100%;

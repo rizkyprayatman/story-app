@@ -7,6 +7,7 @@ export default class StoryDetailPage {
   async render() {
     return `
       <section class="container story-detail">
+        <h1 class="page-title">Story Detail</h1>
         <button id="back-btn" class="btn back-btn">Back</button>
         <div id="detail-content">Loading...</div>
       </section>
@@ -28,14 +29,16 @@ export default class StoryDetailPage {
       const resp = await getStory(id, token);
       if (resp && !resp.error && resp.story) {
         const s = resp.story;
-        const created = s.createdAt
-          ? new Date(s.createdAt).toLocaleString()
-          : "";
+        const created = s.createdAt ? new Date(s.createdAt).toLocaleString() : "";
+        const storyTitle = s.title || "";
         container.innerHTML = `
           <div class="detail-image"><img src="${s.photoUrl}" alt="story image"/></div>
-          <div class="detail-meta">
-            <div class="detail-author">${s.name}</div>
-            <div class="detail-date">${created}</div>
+          <div class="detail-header">
+            ${storyTitle ? `<h2 class="story-title">${storyTitle}</h2>` : ""}
+            <div class="detail-meta">
+              <div class="detail-author">${s.name || ""}</div>
+              <div class="detail-date">${created}</div>
+            </div>
           </div>
           <div class="detail-desc">${s.description}</div>
           <div id="detail-map" class="story-map"></div>

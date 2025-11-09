@@ -40,6 +40,22 @@ class App {
     const url = getActiveRoute();
     const page = routes[url];
 
+    if (typeof document !== "undefined" && document.startViewTransition) {
+      try {
+        await document.startViewTransition(async () => {
+          this.#content.innerHTML = await page.render();
+          try {
+            await page.afterRender();
+          } catch (e) {
+            console.error("page.afterRender error", e);
+          }
+        });
+        return;
+      } catch (e) {
+        console.warn("View Transition API failed, falling back to CSS transitions", e);
+      }
+    }
+
     this.#content.classList.add("page-transition-out");
     await sleep(180);
 
