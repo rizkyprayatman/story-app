@@ -1,0 +1,2 @@
+APP_URL=https://story-app.livetest.my.id
+MAP_SERVICE_API_KEY=C0EXQO18WWtb8p7zZArs

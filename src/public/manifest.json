@@ -1,0 +1,40 @@
+{
+  "name": "Story App",
+  "short_name": "Stories",
+  "lang": "en-US",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f7f65",
+  "icons": [
+    {
+      "src": "images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Story",
+      "short_name": "New",
+      "url": "/#/new"
+    },
+    {
+      "name": "Favorites",
+      "short_name": "Favs",
+      "url": "/#/favorite"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "images/logo.png",
+      "sizes": "640x480",
+      "type": "image/png"
+    }
+  ]
+}
