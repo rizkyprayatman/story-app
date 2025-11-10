@@ -15,7 +15,10 @@ try {
 }
 
 const APP_SHELL = [
-  "index.html",
+  "/",
+  "/index.html",
+  "/manifest.json",
+  "/favicon.png",
   "styles/styles.css",
   "images/logo.png",
 ];
@@ -76,6 +79,13 @@ if (self.workbox && self.workbox.routing && self.workbox.strategies) {
         plugins: [
           new ExpirationPlugin({ maxEntries: 60, maxAgeSeconds: 30 * 24 * 60 * 60 }),
         ],
+      })
+    );
+
+    registerRoute(
+      ({ request }) => request.destination === 'script' || request.destination === 'style',
+      new CacheFirst({
+        cacheName: 'story-static-cache',
       })
     );
 

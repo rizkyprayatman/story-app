@@ -5,7 +5,9 @@ export default class FavoritePage {
         <h1>Favorite</h1>
 
         <div class="saved-controls">
+          <label for="saved-search" class="sr-only">Search saved stories</label>
           <input id="saved-search" placeholder="Search title or description" />
+          <label for="saved-sort" class="sr-only">Sort saved stories</label>
           <select id="saved-sort">
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>

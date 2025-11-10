@@ -28,9 +28,9 @@ export default class NewStoryPage {
             </div>
 
             <div class="form-group">
-              <label>Photo</label>
+              <label for="photo-input">Photo</label>
               <div class="photo-controls">
-                <input type="file" id="photo-input" accept="image/*" aria-label="Select photo" />
+                <input type="file" id="photo-input" accept="image/*" />
                 <button type="button" id="start-camera" class="btn">Take Photo</button>
                 <button type="button" id="capture-photo" class="btn" style="display:none">Capture</button>
               </div>
